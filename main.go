@@ -11,7 +11,9 @@ import (
 	"fmt"
 	"os"
 	"github.com/free-way/riverwaveCommon/definitions"
+	eMiddleware"github.com/labstack/echo/middleware"
 	"github.com/free-way/riverwaveGateway/middleware"
+
 )
 
 var(
@@ -34,17 +36,19 @@ func main()  {
 	}
 	u.ActorsClient = definitions.NewActorsServiceClient(u.ActorsConnection)
 	e := echo.New()
+	e.Use(eMiddleware.Logger())
 	e.GET("/", func(ctx echo.Context) error {
 		return ctx.JSON(200,map[string]string{"Message":"River Wave v1.0"})
 	})
 	v1 :=e.Group("/api/v1",)
 	v1.POST("/auth",h.Auth)
 	protected := v1.Group("",middleware.AuthenticationMiddleware)
+	//
 	protected.GET("/users",h.GetAllUsers)
 	protected.POST("/users",h.CreateUser)
 	protected.PUT("/users/:id",h.EditUser)
 	protected.DELETE("/users/:id",h.DeleteUser)
 
 
-	e.Logger.Fatal(e.Start(":8080"))
+	e.Logger.Debug(e.Start(":8080"))
 }
