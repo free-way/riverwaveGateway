@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/labstack/echo"
-	h"github.com/free-way/riverwaveGateway/Handlers"
+	h"github.com/free-way/riverwaveGateway/handlers"
 
 	u"github.com/free-way/riverwaveGateway/utils"
 	"google.golang.org/grpc"
@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 	"github.com/free-way/riverwaveCommon/definitions"
+	"github.com/free-way/riverwaveGateway/middleware"
 )
 
 var(
@@ -37,11 +38,13 @@ func main()  {
 		return ctx.JSON(200,map[string]string{"Message":"River Wave v1.0"})
 	})
 	v1 :=e.Group("/api/v1",)
-	v1.GET("/users",h.GetAllUsers)
-	v1.POST("/users",h.CreateUser)
-	v1.PUT("/users/:id",h.EditUser)
-	v1.DELETE("/users/:id",h.DeleteUser)
-
 	v1.POST("/auth",h.Auth)
+	protected := v1.Group("",middleware.AuthenticationMiddleware)
+	protected.GET("/users",h.GetAllUsers)
+	protected.POST("/users",h.CreateUser)
+	protected.PUT("/users/:id",h.EditUser)
+	protected.DELETE("/users/:id",h.DeleteUser)
+
+
 	e.Logger.Fatal(e.Start(":8080"))
 }
