@@ -9,4 +9,6 @@ var(
 	Err error
 	ActorsConnection *grpc.ClientConn
 	ActorsClient definitions.ActorsServiceClient
+
+	ResourcesClient definitions.ResourcesClient
 )

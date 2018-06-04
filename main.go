@@ -30,11 +30,13 @@ func main()  {
 		os.Exit(-1)
 	}
 	u.ActorsConnection,u.Err = grpc.Dial(cfg.Section("Microservices").Key("actorsService").String(),grpc.WithInsecure())
+
 	if u.Err != nil{
 		fmt.Println("could not connect to actors service: ",u.Err.Error())
 		os.Exit(-1)
 	}
 	u.ActorsClient = definitions.NewActorsServiceClient(u.ActorsConnection)
+	u.ResourcesClient = definitions.NewResourcesClient(u.ActorsConnection)
 	e := echo.New()
 	e.Use(eMiddleware.Logger())
 	e.GET("/", func(ctx echo.Context) error {
@@ -48,6 +50,11 @@ func main()  {
 	protected.POST("/users",h.CreateUser)
 	protected.PUT("/users/:id",h.EditUser)
 	protected.DELETE("/users/:id",h.DeleteUser)
+
+	protected.GET("/resources",h.GetAllResources)
+	protected.POST("/resources",h.CreateResource)
+	protected.PUT("/resources/:id",h.EditResource)
+	protected.DELETE("/resources/:id",h.DeleteResource)
 
 
 	e.Logger.Debug(e.Start(":8080"))
